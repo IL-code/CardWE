@@ -1,303 +1,71 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tap the Card</title>
-    <style>
-        /* Основные стили */
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #F0F0F0; /* Светло-серый фон */
-            font-family: 'Arial', sans-serif;
-        }
+                coin.remove();
+            }, 1000);
 
-        /* Заголовок */
-        .header {
-            color: #333333;
-            font-size: 28px;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
-        /* Панель счетчика */
-        .counter-panel {
-            width: 220px;
-            height: 60px;
-            background-color: #42C2C1; /* Бирюзовый цвет */
-            border-radius: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .counter {
-            font-size: 26px;
-            font-weight: bold;
-            color: #FFFFFF; /* Белый цвет текста */
-            display: flex;
-            align-items: center;
-        }
-
-        .counter::before {
-            content: "💰";
-            margin-right: 8px;
-        }
-
-        /* Полоса энергии */
-        .energy-bar-container {
-            width: 80%;
-            height: 20px;
-            background-color: #D8D8D8;
-            border-radius: 10px;
-            margin-top: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .energy-bar {
-            height: 100%;
-            width: 100%;
-            background-color: #42C2C1; /* Бирюзовый цвет */
-            border-radius: 10px 0 0 10px;
-            transition: width 0.3s ease;
-        }
-
-        .energy-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            top: 0;
-            left: 0;
-            line-height: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #FFFFFF;
-        }
-
-        /* Карточка */
-        .card {
-            width: 320px;
-            height: 200px;
-            background-color: #FFFFFF;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 6px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            position: relative;
-            margin-top: 20px;
-        }
-
-        .card:active {
-            transform: scale(0.98);
-        }
-
-        .card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        /* Анимация монетки */
-        .coin {
-            position: absolute;
-            font-size: 24px;
-            animation: fly 1s ease-out forwards;
-            pointer-events: none;
-        }
-
-        @keyframes fly {
-            0% {
-                opacity: 1;
-                transform: translateY(0);
+            // Вибрация устройства при нажатии
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(50);
             }
-            100% {
-                opacity: 0;
-                transform: translateY(-100px);
-            }
+
+            checkLevelUp();
+            saveProgress();
+        } else {
+            alert('Not enough energy!');
         }
+    });
 
-        /* Футер */
-        .footer {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            padding: 15px 0;
-            background-color: #E1F3F8;
-            box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+    // Проверка на повышение уровня
+    function checkLevelUp() {
+        if (count >= level * levelThreshold) {
+            level++;
+            alert(`Level Up! You are now level ${level}`);
+            saveProgress();
         }
+    }
 
-        .footer-icon {
-            text-align: center;
-            color: #FF66B2;
-            font-size: 24px;
-            cursor: pointer;
-        }
+    // Функция сохранения данных в LocalStorage
+    function saveProgress() {
+        localStorage.setItem('count', count);
+        localStorage.setItem('energy', energy);
+        localStorage.setItem('level', level);
+    }
 
-        .footer-icon a {
-            color: inherit;
-            text-decoration: none;
-        }
+    // Функция загрузки данных из LocalStorage
+    function loadProgress() {
+        count = parseInt(localStorage.getItem('count')) || 0;
+        energy = parseInt(localStorage.getItem('energy')) || 1000;
+        level = parseInt(localStorage.getItem('level')) || 1;
+        counter.textContent = count;
+        updateEnergyBar();
+    }
 
-        .footer-text {
-            font-size: 12px;
-            color: #333333;
-            margin-top: 5px;
-        }
-    </style>
-</head>
-<body>
-    <!-- Заголовок -->
-    <div class="header">Make More Money</div>
+    // Загружаем прогресс при загрузке страницы
+    window.addEventListener('load', () => {
+        loadProgress();
+    });
 
-    <!-- Полоса энергии -->
-    <div class="energy-bar-container">
-        <div class="energy-bar" id="energy-bar"></div>
-        <div class="energy-text" id="energy-text">Energy: 1000/1000</div>
-    </div>
+    // Обработчики нажатий на иконки
+    document.getElementById('keys').addEventListener('click', () => {
+        showPopup();
+    });
 
-    <!-- Панель счетчика -->
-    <div class="counter-panel">
-        <div class="counter" id="counter">0</div>
-    </div>
+    document.getElementById('friends').addEventListener('click', () => {
+        showPopup();
+    });
 
-    <!-- Карточка с изображением -->
-    <div class="card" id="card">
-        <img src="https://raw.githubusercontent.com/IL-code/CardWE/main/weld_money_card_mc-01%202.png" alt="Card Image">
-    </div>
+    document.getElementById('quests').addEventListener('click', () => {
+        showPopup();
+    });
 
-    <!-- Футер с иконками -->
-    <div class="footer">
-        <div class="footer-icon" id="keys">
-            🔑
-            <div class="footer-text">Keys</div>
-        </div>
-        <div class="footer-icon" id="friends">
-            👥
-            <div class="footer-text">Friends</div>
-        </div>
-        <div class="footer-icon" id="quests">
-            🏆
-            <div class="footer-text">Quests</div>
-        </div>
-        <div class="footer-icon">
-            <a href="https://t.me/weldmoney" target="_blank">
-                ➕
-                <div class="footer-text">Join</div>
-            </a>
-        </div>
-        <div class="footer-icon">
-            <a href="https://weldmoney.onelink.me/cu82?pid=Telegram&c=Taps&af_channel=CardWE" target="_blank">
-                💳
-                <div class="footer-text">Get Card</div>
-            </a>
-        </div>
-    </div>
+    // Показать всплывающее окно
+    function showPopup() {
+        document.getElementById('popup').classList.add('visible');
+    }
 
-    <!-- Скрипты -->
-    <script>
-        let count = 0;
-        let level = 1;
-        const levelThreshold = 100; // Количество монет для повышения уровня
-        const card = document.getElementById('card');
-        const counter = document.getElementById('counter');
-        const energyBar = document.getElementById('energy-bar');
-        const energyText = document.getElementById('energy-text');
-        let energy = 1000;
-        const maxEnergy = 1000;
-
-        // Функция обновления полосы энергии
-        function updateEnergyBar() {
-            const energyPercentage = (energy / maxEnergy) * 100;
-            energyBar.style.width = energyPercentage + '%';
-            energyText.textContent = 'Energy: ' + energy + '/' + maxEnergy;
-        }
-
-        // Восполнение энергии каждые 2 секунды
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy++;
-                updateEnergyBar();
-            }
-        }, 2000);
-
-        // Обработчик клика по карточке
-        card.addEventListener('click', (e) => {
-            if (energy > 0) {
-                energy--;
-                updateEnergyBar();
-
-                count++;
-                counter.textContent = count;
-
-                // Создание анимации монетки
-                const coin = document.createElement('div');
-                coin.textContent = "+1 💰";  // Заменяем мешок на монету
-                coin.classList.add('coin');
-                const rect = card.getBoundingClientRect();
-                coin.style.left = `${e.clientX - rect.left - 12}px`;
-                coin.style.top = `${e.clientY - rect.top - 12}px`;
-
-                card.appendChild(coin);
-
-                // Удаление монетки после анимации
-                setTimeout(() => {
-                    coin.remove();
-                }, 1000);
-
-                // Вибрация устройства при нажатии
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate(50);
-                }
-
-                checkLevelUp();
-                saveProgress();
-            } else {
-                alert('Not enough energy!');
-            }
-        });
-
-        // Проверка на повышение уровня
-        function checkLevelUp() {
-            if (count >= level * levelThreshold) {
-                level++;
-                alert(`Level Up! You are now level ${level}`);
-                saveProgress();
-            }
-        }
-
-        // Функция сохранения данных в LocalStorage
-        function saveProgress() {
-            localStorage.setItem('count', count);
-            localStorage.setItem('energy', energy);
-            localStorage.setItem('level', level);
-        }
-
-        // Функция загрузки данных из LocalStorage
-        function loadProgress() {
-            count = parseInt(localStorage.getItem('count')) || 0;
-            energy = parseInt(localStorage.getItem('energy')) || 1000;
-            level = parseInt(localStorage.getItem('level')) || 1;
-            counter.textContent = count;
-            updateEnergyBar();
-        }
-
-        // Загружаем прогресс при загрузке страницы
-        window.addEventListener('load', () => {
-            loadProgress();
-        });
-    </script>
+    // Закрыть всплывающее окно
+    function closePopup() {
+        document.getElementById('popup').classList.remove('visible');
+    }
+</script>
 </body>
 </html>
