@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tap the Card</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .card {
+            width: 300px;
+            height: 180px;
+            background-color: #007bff;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+            position: relative;
+        }
+        .card:active {
+            transform: scale(0.98);
+        }
+        .counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 24px;
+        }
+        .card:before {
+            content: "💳";
+            font-size: 50px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="card">
+        <div class="counter" id="counter">0</div>
+    </div>
+
+    <script>
+        let count = 0;
+        const card = document.getElementById('card');
+        const counter = document.getElementById('counter');
+
+        card.addEventListener('click', () => {
+            count++;
+            counter.textContent = count;
+        });
+    </script>
+</body>
+</html>
