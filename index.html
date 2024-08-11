@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +30,7 @@
         .counter-panel {
             width: 220px;
             height: 60px;
-            background-color: #E1F3F8;
+            background-color: #42C2C1; /* Бирюзовый цвет */
             border-radius: 30px;
             display: flex;
             justify-content: center;
@@ -42,7 +43,7 @@
         .counter {
             font-size: 26px;
             font-weight: bold;
-            color: #FFDF00; /* Золотой цвет */
+            color: #FFFFFF; /* Белый цвет текста */
             display: flex;
             align-items: center;
         }
@@ -103,9 +104,9 @@
         }
 
         .card img {
-            width: 90%;
-            height: 90%;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             border-radius: 8px;
         }
 
@@ -174,8 +175,7 @@
 
     <!-- Карточка с изображением -->
     <div class="card" id="card">
-<img src="https://raw.githubusercontent.com/IL-code/CardWE/main/weld_money_card_mc.png" alt="Card Image">
-
+        <img src="https://raw.githubusercontent.com/IL-code/CardWE/main/weld_money_card_mc-01%202.png" alt="Card Image">
     </div>
 
     <!-- Футер с иконками -->
@@ -198,11 +198,19 @@
                 <div class="footer-text">Join</div>
             </a>
         </div>
+        <div class="footer-icon">
+            <a href="https://weldmoney.onelink.me/cu82?pid=Telegram&c=Taps&af_channel=CardWE" target="_blank">
+                💳
+                <div class="footer-text">Get Card</div>
+            </a>
+        </div>
     </div>
 
     <!-- Скрипты -->
     <script>
         let count = 0;
+        let level = 1;
+        const levelThreshold = 100; // Количество монет для повышения уровня
         const card = document.getElementById('card');
         const counter = document.getElementById('counter');
         const energyBar = document.getElementById('energy-bar');
@@ -236,7 +244,7 @@
 
                 // Создание анимации монетки
                 const coin = document.createElement('div');
-                coin.textContent = "+1 💰";
+                coin.textContent = "+1 💰";  // Заменяем мешок на монету
                 coin.classList.add('coin');
                 const rect = card.getBoundingClientRect();
                 coin.style.left = `${e.clientX - rect.left - 12}px`;
@@ -253,26 +261,43 @@
                 if (window.navigator.vibrate) {
                     window.navigator.vibrate(50);
                 }
+
+                checkLevelUp();
+                saveProgress();
             } else {
                 alert('Not enough energy!');
             }
         });
 
-        // Обработчики кликов по иконкам футера
-        document.getElementById('keys').addEventListener('click', () => {
-            alert('We are working on it');
-        });
+        // Проверка на повышение уровня
+        function checkLevelUp() {
+            if (count >= level * levelThreshold) {
+                level++;
+                alert(`Level Up! You are now level ${level}`);
+                saveProgress();
+            }
+        }
 
-        document.getElementById('friends').addEventListener('click', () => {
-            alert('We are working on it');
-        });
+        // Функция сохранения данных в LocalStorage
+        function saveProgress() {
+            localStorage.setItem('count', count);
+            localStorage.setItem('energy', energy);
+            localStorage.setItem('level', level);
+        }
 
-        document.getElementById('quests').addEventListener('click', () => {
-            alert('We are working on it');
-        });
+        // Функция загрузки данных из LocalStorage
+        function loadProgress() {
+            count = parseInt(localStorage.getItem('count')) || 0;
+            energy = parseInt(localStorage.getItem('energy')) || 1000;
+            level = parseInt(localStorage.getItem('level')) || 1;
+            counter.textContent = count;
+            updateEnergyBar();
+        }
 
-        // Инициализация полосы энергии при загрузке
-        updateEnergyBar();
+        // Загружаем прогресс при загрузке страницы
+        window.addEventListener('load', () => {
+            loadProgress();
+        });
     </script>
 </body>
 </html>
