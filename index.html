@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weld Money Game</title>
+    <title>Tap the Card</title>
     <style>
         /* Основные стили */
         body, html {
@@ -25,9 +26,20 @@
             font-weight: bold;
         }
 
+        /* Контейнер для уровня и баланса */
+        .level-counter-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 90%;
+            margin-bottom: 20px;
+            padding-left: 20px;  /* Padding added to create more space */
+            padding-right: 20px; /* Padding added to create more space */
+        }
+
         /* Панель счетчика */
         .counter-panel {
-            width: 220px;
+            width: 150px;
             height: 60px;
             background-color: #42C2C1; /* Бирюзовый цвет */
             border-radius: 30px;
@@ -35,7 +47,6 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            margin-bottom: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
@@ -52,35 +63,48 @@
             margin-right: 8px;
         }
 
-        /* Полоса энергии */
-        .energy-bar-container {
+        /* Прогресс уровня */
+        .level-panel {
+            width: 150px;
+            height: 60px;
+            background-color: #FF66B2; /* Розовый цвет для лучшей читаемости */
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .level-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: #FFFFFF; /* Белый цвет текста */
+            display: flex;
+            align-items: center;
+        }
+
+        .level-text::before {
+            content: "⭐";
+            margin-right: 8px;
+        }
+
+        .level-progress-bar {
             width: 80%;
-            height: 20px;
+            height: 8px;
             background-color: #D8D8D8;
-            border-radius: 10px;
-            margin-top: 20px;
+            border-radius: 4px;
+            margin-top: 5px;
             position: relative;
             overflow: hidden;
         }
 
-        .energy-bar {
+        .level-progress {
             height: 100%;
-            width: 100%;
-            background-color: #42C2C1; /* Бирюзовый цвет */
-            border-radius: 10px 0 0 10px;
+            background-color: #FFFFFF; /* Белый цвет прогресса */
+            border-radius: 4px;
             transition: width 0.3s ease;
-        }
-
-        .energy-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            top: 0;
-            left: 0;
-            line-height: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #FFFFFF;
         }
 
         /* Карточка */
@@ -113,6 +137,7 @@
         .coin {
             position: absolute;
             font-size: 24px;
+            color: #42C2C1; /* Бирюзовый цвет */
             animation: fly 1s ease-out forwards;
             pointer-events: none;
         }
@@ -143,6 +168,7 @@
             color: #FF66B2;
             font-size: 24px;
             cursor: pointer;
+            position: relative;
         }
 
         .footer-icon a {
@@ -156,36 +182,35 @@
             margin-top: 5px;
         }
 
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        /* Полоса энергии */
+        .energy-bar-container {
+            width: 320px;
+            height: 20px;
+            background-color: #D8D8D8;
             border-radius: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .energy-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #42C2C1; /* Бирюзовый цвет */
+            border-radius: 10px 0 0 10px;
+            transition: width 0.3s ease;
+        }
+
+        .energy-text {
+            position: absolute;
+            width: 100%;
             text-align: center;
-        }
-
-        .popup.visible {
-            display: block;
-        }
-
-        .popup img {
-            width: 50px;
-            height: 50px;
-        }
-
-        .popup button {
-            margin-top: 10px;
-            padding: 5px 10px;
-            background-color: #FF66B2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            top: 0;
+            left: 0;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #FFFFFF;
         }
     </style>
 </head>
@@ -193,20 +218,31 @@
     <!-- Заголовок -->
     <div class="header">Make More Money</div>
 
-    <!-- Полоса энергии -->
-    <div class="energy-bar-container">
-        <div class="energy-bar" id="energy-bar"></div>
-        <div class="energy-text" id="energy-text">Energy: 1000/1000</div>
-    </div>
+    <!-- Контейнер для уровня и баланса -->
+    <div class="level-counter-container">
+        <!-- Панель уровня -->
+        <div class="level-panel">
+            <div class="level-text" id="level">Level 1</div>
+            <div class="level-progress-bar">
+                <div class="level-progress" id="level-progress" style="width: 0%;"></div>
+            </div>
+        </div>
 
-    <!-- Панель счетчика -->
-    <div class="counter-panel">
-        <div class="counter" id="counter">0</div>
+        <!-- Панель счетчика -->
+        <div class="counter-panel">
+            <div class="counter" id="counter">0</div>
+        </div>
     </div>
 
     <!-- Карточка с изображением -->
     <div class="card" id="card">
         <img src="https://raw.githubusercontent.com/IL-code/CardWE/main/weld_money_card_mc-01%202.png" alt="Card Image">
+    </div>
+
+    <!-- Полоса энергии -->
+    <div class="energy-bar-container">
+        <div class="energy-bar" id="energy-bar"></div>
+        <div class="energy-text" id="energy-text">Energy: 1000/1000</div>
     </div>
 
     <!-- Футер с иконками -->
@@ -237,24 +273,20 @@
         </div>
     </div>
 
-    <!-- Всплывающее окно -->
-    <div class="popup" id="popup">
-        <img src="https://via.placeholder.com/50" alt="Work in Progress">
-        <p>We are working on it!</p>
-        <button onclick="closePopup()">Close</button>
-    </div>
-
     <!-- Скрипты -->
     <script>
         let count = 0;
         let level = 1;
-        const levelThreshold = 100; // Количество монет для повышения уровня
+        const levelThreshold = 1000; // Количество тапов для первого уровня
         const card = document.getElementById('card');
         const counter = document.getElementById('counter');
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
+        const levelText = document.getElementById('level');
+        const levelProgress = document.getElementById('level-progress');
         let energy = 1000;
-        const maxEnergy = 1000;
+        let maxEnergy = 1000;
+        let pointsPerTap = 1; // Начинаем с 1 очка за тап
 
         // Функция обновления полосы энергии
         function updateEnergyBar() {
@@ -277,12 +309,12 @@
                 energy--;
                 updateEnergyBar();
 
-                count++;
+                count += pointsPerTap; // Добавляем очки по текущему уровню
                 counter.textContent = count;
 
                 // Создание анимации монетки
                 const coin = document.createElement('div');
-                coin.textContent = "+1 💰";  // Заменяем мешок на монету
+                coin.textContent = "+" + pointsPerTap + " 💸";  // Заменяем на монету
                 coin.classList.add('coin');
                 const rect = card.getBoundingClientRect();
                 coin.style.left = `${e.clientX - rect.left - 12}px`;
@@ -295,11 +327,6 @@
                     coin.remove();
                 }, 1000);
 
-                // Вибрация устройства при нажатии
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate(50);
-                }
-
                 checkLevelUp();
                 saveProgress();
             } else {
@@ -309,11 +336,36 @@
 
         // Проверка на повышение уровня
         function checkLevelUp() {
-            if (count >= level * levelThreshold) {
+            const nextLevelThreshold = level * levelThreshold;
+            if (count >= nextLevelThreshold) {
                 level++;
-                alert(`Level Up! You are now level ${level}`);
+                pointsPerTap = level >= 2 ? 2 : 1; // Увеличиваем очки за тап на уровне 2 и выше
+                alert(`🎉 Level Up! You are now level ${level} 🎉`);
+                maxEnergy += 200; // Увеличиваем максимальный уровень энергии
+                energy = maxEnergy; // Восстанавливаем энергию при повышении уровня
+                updateEnergyBar();
+                updateLevelProgress();
                 saveProgress();
+
+                // Фейерверк и поздравление
+                showFireworks();
+            } else {
+                updateLevelProgress();
             }
+        }
+
+        // Функция обновления прогресс-бара уровня
+        function updateLevelProgress() {
+            const nextLevelThreshold = level * levelThreshold;
+            const progressPercentage = (count / nextLevelThreshold) * 100;
+            levelProgress.style.width = progressPercentage + '%';
+            levelText.textContent = `Level ${level}`;
+        }
+
+        // Функция для отображения фейерверков
+        function showFireworks() {
+            // Здесь может быть реализована анимация фейерверков
+            alert("🎆 Fireworks! 🎆");
         }
 
         // Функция сохранения данных в LocalStorage
@@ -328,8 +380,10 @@
             count = parseInt(localStorage.getItem('count')) || 0;
             energy = parseInt(localStorage.getItem('energy')) || 1000;
             level = parseInt(localStorage.getItem('level')) || 1;
+            pointsPerTap = level >= 2 ? 2 : 1; // Устанавливаем очки за тап в зависимости от уровня
             counter.textContent = count;
             updateEnergyBar();
+            checkLevelUp(); // Обновляем информацию о уровне
         }
 
         // Загружаем прогресс при загрузке страницы
@@ -337,28 +391,36 @@
             loadProgress();
         });
 
-        // Обработчики нажатий на иконки
+        // Обработчики для заглушек с надписью "We are working on it" и эмодзи
         document.getElementById('keys').addEventListener('click', () => {
-            showPopup();
+            alert('🔑 We are working on it');
         });
 
         document.getElementById('friends').addEventListener('click', () => {
-            showPopup();
+            alert('👥 We are working on it');
         });
 
         document.getElementById('quests').addEventListener('click', () => {
-            showPopup();
+            // Окно для получения награды каждые 3 часа
+            const lastClaimed = localStorage.getItem('lastClaimed') || 0;
+            const now = Date.now();
+            const threeHours = 3 * 60 * 60 * 1000;
+            const nextClaim = parseInt(lastClaimed) + threeHours;
+
+            if (now >= nextClaim) {
+                alert('🎁 Claim your 3-hour reward: +100 coins!');
+                count += 100;
+                localStorage.setItem('lastClaimed', now);
+                saveProgress();
+                counter.textContent = count;
+                checkLevelUp();
+            } else {
+                const timeLeft = nextClaim - now;
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                alert(`🕒 Come back in ${hours}h ${minutes}m for your next reward!`);
+            }
         });
-
-        // Показать всплывающее окно
-        function showPopup() {
-            document.getElementById('popup').classList.add('visible');
-        }
-
-        // Закрыть всплывающее окно
-        function closePopup() {
-            document.getElementById('popup').classList.remove('visible');
-        }
     </script>
 </body>
 </html>
