@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tap the Card</title>
     <style>
+        /* Основные стили */
         body, html {
             height: 100%;
             margin: 0;
@@ -12,30 +13,34 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            background-color: #00A6A6;
-            font-family: Arial, sans-serif;
+            background-color: #F0F0F0; /* Светло-серый фон */
+            font-family: 'Arial', sans-serif;
         }
 
+        /* Заголовок */
         .header {
-            color: white;
-            font-size: 24px;
-            margin-top: 10px;
+            color: #333333;
+            font-size: 28px;
+            margin-top: 20px;
+            font-weight: bold;
         }
 
+        /* Панель счетчика */
         .counter-panel {
-            width: 200px;
-            height: 50px;
+            width: 220px;
+            height: 60px;
             background-color: #E1F3F8;
-            border-radius: 25px;
+            border-radius: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .counter {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             color: #FFDF00; /* Золотой цвет */
             display: flex;
@@ -47,27 +52,69 @@
             margin-right: 8px;
         }
 
+        /* Полоса энергии */
+        .energy-bar-container {
+            width: 80%;
+            height: 20px;
+            background-color: #D8D8D8;
+            border-radius: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .energy-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #42C2C1; /* Бирюзовый цвет */
+            border-radius: 10px 0 0 10px;
+            transition: width 0.3s ease;
+        }
+
+        .energy-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 0;
+            left: 0;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+
+        /* Карточка */
         .card {
-            width: 300px;
-            height: 180px;
-            background-color: #42C2C1;
+            width: 320px;
+            height: 200px;
+            background-color: #FFFFFF;
             border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.1);
             cursor: pointer;
             position: relative;
+            margin-top: 20px;
         }
 
         .card:active {
             transform: scale(0.98);
         }
 
+        .card img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* Анимация монетки */
         .coin {
             position: absolute;
             font-size: 24px;
             animation: fly 1s ease-out forwards;
+            pointer-events: none;
         }
 
         @keyframes fly {
@@ -81,88 +128,150 @@
             }
         }
 
+        /* Футер */
         .footer {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            padding: 20px;
+            padding: 15px 0;
             background-color: #E1F3F8;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
         }
 
         .footer-icon {
             text-align: center;
             color: #FF66B2;
             font-size: 24px;
+            cursor: pointer;
         }
 
         .footer-icon a {
             color: inherit;
             text-decoration: none;
         }
+
+        .footer-text {
+            font-size: 12px;
+            color: #333333;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
+    <!-- Заголовок -->
     <div class="header">Make More Money</div>
 
+    <!-- Полоса энергии -->
+    <div class="energy-bar-container">
+        <div class="energy-bar" id="energy-bar"></div>
+        <div class="energy-text" id="energy-text">Energy: 1000/1000</div>
+    </div>
+
+    <!-- Панель счетчика -->
     <div class="counter-panel">
         <div class="counter" id="counter">0</div>
     </div>
 
-    <div class="card" id="card"></div>
+    <!-- Карточка с изображением -->
+    <div class="card" id="card">
+        <img src="https://via.placeholder.com/280x160.png?text=Card+Image" alt="Card Image">
+    </div>
 
+    <!-- Футер с иконками -->
     <div class="footer">
-        <div class="footer-icon">
-            🔑<br>Keys
+        <div class="footer-icon" id="keys">
+            🔑
+            <div class="footer-text">Keys</div>
         </div>
-        <div class="footer-icon">
-            👥<br>Friends
+        <div class="footer-icon" id="friends">
+            👥
+            <div class="footer-text">Friends</div>
         </div>
-        <div class="footer-icon">
-            🏆<br>Quests
+        <div class="footer-icon" id="quests">
+            🏆
+            <div class="footer-text">Quests</div>
         </div>
         <div class="footer-icon">
             <a href="https://t.me/weldmoney" target="_blank">
-                ➕<br>Join
+                ➕
+                <div class="footer-text">Join</div>
             </a>
         </div>
     </div>
 
+    <!-- Скрипты -->
     <script>
         let count = 0;
         const card = document.getElementById('card');
         const counter = document.getElementById('counter');
+        const energyBar = document.getElementById('energy-bar');
+        const energyText = document.getElementById('energy-text');
+        let energy = 1000;
+        const maxEnergy = 1000;
 
+        // Функция обновления полосы энергии
+        function updateEnergyBar() {
+            const energyPercentage = (energy / maxEnergy) * 100;
+            energyBar.style.width = energyPercentage + '%';
+            energyText.textContent = 'Energy: ' + energy + '/' + maxEnergy;
+        }
+
+        // Восполнение энергии каждые 2 секунды
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy++;
+                updateEnergyBar();
+            }
+        }, 2000);
+
+        // Обработчик клика по карточке
         card.addEventListener('click', (e) => {
-            count++;
-            counter.textContent = count;
+            if (energy > 0) {
+                energy--;
+                updateEnergyBar();
 
-            // Создание анимации монетки
-            const coin = document.createElement('div');
-            coin.textContent = "+1";
-            coin.classList.add('coin');
-            coin.style.left = `${e.clientX - card.getBoundingClientRect().left}px`;
-            coin.style.top = `${e.clientY - card.getBoundingClientRect().top}px`;
+                count++;
+                counter.textContent = count;
 
-            card.appendChild(coin);
+                // Создание анимации монетки
+                const coin = document.createElement('div');
+                coin.textContent = "+1 💰";
+                coin.classList.add('coin');
+                const rect = card.getBoundingClientRect();
+                coin.style.left = `${e.clientX - rect.left - 12}px`;
+                coin.style.top = `${e.clientY - rect.top - 12}px`;
 
-            // Удаление монетки после анимации
-            setTimeout(() => {
-                coin.remove();
-            }, 1000);
+                card.appendChild(coin);
 
-            // Вибрация устройства при нажатии
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate(50);
+                // Удаление монетки после анимации
+                setTimeout(() => {
+                    coin.remove();
+                }, 1000);
+
+                // Вибрация устройства при нажатии
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(50);
+                }
+            } else {
+                alert('Not enough energy!');
             }
         });
 
-        // Добавление обработки нажатий на иконки
-        const footerIcons = document.querySelectorAll('.footer-icon:not(:last-child)');
-        footerIcons.forEach(icon => {
-            icon.addEventListener('click', () => {
-                alert('We are working on it');
-            });
+        // Обработчики кликов по иконкам футера
+        document.getElementById('keys').addEventListener('click', () => {
+            alert('We are working on it');
         });
+
+        document.getElementById('friends').addEventListener('click', () => {
+            alert('We are working on it');
+        });
+
+        document.getElementById('quests').addEventListener('click', () => {
+            alert('We are working on it');
+        });
+
+        // Инициализация полосы энергии при загрузке
+        updateEnergyBar();
     </script>
 </body>
 </html>
